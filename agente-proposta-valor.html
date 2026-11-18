@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agente de Propostas de Valor | WBM ANÁLISES</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#14181f;--mut:#5b6573;--bd:#dde1e7;--ac:#0f6b5c;--acx:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101418;--card:#181e25;--tx:#e8ecf1;--mut:#9aa6b4;--bd:#2a323c;--ac:#3fb8a0;--acx:#08201b}}
+:root[data-theme="dark"]{--bg:#101418;--card:#181e25;--tx:#e8ecf1;--mut:#9aa6b4;--bd:#2a323c;--ac:#3fb8a0;--acx:#08201b}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.5rem;margin:.2em 0}
+.sub{color:var(--mut);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px}
+label{display:block;font-weight:600;font-size:.9rem;margin:14px 0 4px}
+label small{font-weight:400;color:var(--mut)}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+textarea{min-height:76px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:10px 16px;border-radius:8px;cursor:pointer}
+button.p{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+button:disabled{opacity:.55;cursor:wait}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+#out h2{font-size:1.15rem;margin:1.4em 0 .4em;color:var(--ac)}
+#out h3{font-size:1rem}
+#out blockquote{margin:.6em 0;padding:.4em 12px;border-left:3px solid var(--ac);background:var(--bg)}
+.tw{overflow-x:auto}
+#out table{border-collapse:collapse;min-width:560px;font-size:.88rem}
+#out th,#out td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+.hist button{display:block;width:100%;text-align:left;margin-bottom:6px}
+.err{color:#c0392b}
+.mut{color:var(--mut);font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Agente de Propostas de Valor</h1>
+<p class="sub">WBM ANÁLISES · Preencha o briefing e receba uma proposta de valor clara, com provas, objeções e teste A/B.</p>
+
+<div class="card">
+  <div class="row">
+    <div><label for="nome">Nome do negócio e segmento</label><input id="nome" placeholder="Ex.: Marmitas Fit BH, alimentação"></div>
+    <div><label for="ticket">Ticket médio (R$) <small>opcional</small></label><input id="ticket" type="number" min="0" placeholder="Ex.: 180"></div>
+  </div>
+  <label for="vende">O que vende</label><textarea id="vende" placeholder="Produto ou serviço e como é entregue"></textarea>
+  <label for="cliente">Cliente ideal</label><textarea id="cliente" placeholder="Quem compra? Perfil, cidade, rotina"></textarea>
+  <label for="dor">Maior dor do cliente <small>antes de comprar</small></label><textarea id="dor"></textarea>
+  <label for="alt">Como o cliente resolve hoje <small>concorrentes e alternativas</small></label><textarea id="alt"></textarea>
+  <label for="dif">Seu diferencial</label><textarea id="dif" placeholder="Processo, preço, prazo, garantia, nicho"></textarea>
+  <label for="prova">Provas <small>números, depoimentos, cases (não invente)</small></label><textarea id="prova"></textarea>
+  <div class="row">
+    <div><label for="canal">Canal principal de venda</label>
+      <select id="canal"><option>WhatsApp</option><option>Instagram</option><option>Site / loja virtual</option><option>Loja física</option><option>Indicação</option><option>Outro</option></select></div>
+    <div><label for="obj">Objetivo</label>
+      <select id="obj"><option>Mais contatos (leads)</option><option>Vender mais caro</option><option>Reduzir objeções</option><option>Explicar melhor o que faço</option></select></div>
+  </div>
+  <div class="bar"><button class="p" id="go">Gerar proposta de valor</button><button id="clr">Limpar</button></div>
+  <p class="mut" id="msg"></p>
+</div>
+
+<div class="card" id="res" hidden>
+  <div class="bar" style="margin:0 0 8px"><button id="cp">Copiar</button><button id="dl">Baixar (.md)</button></div>
+  <div id="out" class="tw"></div>
+</div>
+
+<div class="card hist" id="hc" hidden><strong>Histórico neste navegador</strong><div id="hist" style="margin-top:10px"></div></div>
+</main>
+
+<script>
+var SYS = `Você é o Agente de Propostas de Valor da WBM ANÁLISES, startup enxuta de tecnologia, dados e crescimento para pequenos negócios.
+MISSÃO: ajudar empreendedores individuais (MEI, autônomos) e PMEs a definir uma proposta de valor clara, específica e verificável.
+PÚBLICO: donos de negócio sem formação em marketing. Português do Brasil, linguagem simples, sem jargão.
+MÉTODO: Value Proposition Canvas e Jobs To Be Done. Priorize 1 segmento, 1 dor principal e 1 promessa central.
+REGRAS: nunca invente números, depoimentos, prêmios, prazos ou resultados; onde faltar prova escreva [INSERIR PROVA] e diga como obtê-la. Sem promessa de resultado financeiro. Sem clichês ("líder de mercado", "excelência", "solução completa") sem prova. Se faltar informação, liste as suposições feitas no início. Sem aconselhamento jurídico, contábil ou tributário.
+FORMATO (Markdown, nesta ordem):
+## 1. Resumo do diagnóstico (máx. 5 linhas)
+## 2. Canvas resumido (tabela: Tarefas do cliente | Dores | Ganhos | Aliviadores | Criadores de ganho)
+## 3. Proposta de valor: frase principal (até 20 palavras) no formato "Ajudamos [cliente específico] a [resultado] sem [dor], através de [mecanismo]."; versão curta (até 10 palavras); versão longa para site (título, subtítulo, 3 benefícios com prova)
+## 4. Diferenciais e provas (verificável, falta comprovar, como obter)
+## 5. Objeções prováveis e respostas
+## 6. Teste rápido (2 variações A/B e a métrica a observar)
+## 7. Como a WBM pode ajudar: recomende de 1 a 3 serviços do catálogo ligados a lacunas reais: sites e blogs; produtos digitais; automações e agentes de IA; painéis, análises e relatórios; gestão empresarial e financeira; marketing e assessoria; melhoria, suporte e assessoria contínua. Não force venda.
+Antes de responder confira: cliente específico, resultado concreto, diferencial verificável, linguagem simples.`;
+
+var $ = function(i){return document.getElementById(i)};
+var F = ["nome","ticket","vende","cliente","dor","alt","dif","prova","canal","obj"];
+var cur = "", KEY = "wbm_hist_v1";
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function inl(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\*(.+?)\*/g,"<em>$1</em>")}
+function md(t){
+  var L = t.split("\n"), h = "", i = 0;
+  while(i < L.length){
+    var l = L[i];
+    if(/^\s*\|/.test(l)){
+      var rows = [];
+      while(i < L.length && /^\s*\|/.test(L[i])){ if(!/^\s*\|[\s\-:|]+\|\s*$/.test(L[i])) rows.push(L[i]); i++; }
+      h += "<table>" + rows.map(function(r,k){
+        var c = r.trim().replace(/^\||\|$/g,"").split("|"), tg = k ? "td" : "th";
+        return "<tr>" + c.map(function(x){return "<"+tg+">"+inl(x.trim())+"</"+tg+">"}).join("") + "</tr>";
+      }).join("") + "</table>";
+      continue;
+    }
+    if(/^###\s/.test(l)) h += "<h3>"+inl(l.slice(4))+"</h3>";
+    else if(/^##\s/.test(l)) h += "<h2>"+inl(l.slice(3))+"</h2>";
+    else if(/^#\s/.test(l)) h += "<h2>"+inl(l.slice(2))+"</h2>";
+    else if(/^>\s?/.test(l)) h += "<blockquote>"+inl(l.replace(/^>\s?/,""))+"</blockquote>";
+    else if(/^\s*[-*]\s/.test(l)) h += "<ul><li>"+inl(l.replace(/^\s*[-*]\s/,""))+"</li></ul>";
+    else if(/^\s*\d+\.\s/.test(l)) h += "<p>"+inl(l)+"</p>";
+    else if(l.trim()) h += "<p>"+inl(l)+"</p>";
+    i++;
+  }
+  return h.replace(/<\/ul><ul>/g,"");
+}
+
+function brief(){
+  var o = {}; F.forEach(function(k){o[k] = $(k).value.trim()});
+  return o;
+}
+function prompt(o){
+  return SYS + "\n\n# BRIEFING DO CLIENTE\n" +
+   "Negócio e segmento: " + (o.nome||"(não informado)") + "\n" +
+   "O que vende: " + (o.vende||"(não informado)") + "\n" +
+   "Cliente ideal: " + (o.cliente||"(não informado)") + "\n" +
+   "Maior dor: " + (o.dor||"(não informado)") + "\n" +
+   "Como resolve hoje: " + (o.alt||"(não informado)") + "\n" +
+   "Diferencial: " + (o.dif||"(não informado)") + "\n" +
+   "Provas: " + (o.prova||"(nenhuma informada)") + "\n" +
+   "Ticket médio: " + (o.ticket ? "R$ " + o.ticket : "(não informado)") + "\n" +
+   "Canal: " + o.canal + "\nObjetivo: " + o.obj;
+}
+
+function show(t){ cur = t; $("res").hidden = false; $("out").innerHTML = md(t); }
+
+function loadH(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]") }catch(e){ return [] } }
+function saveH(o,t){
+  try{
+    var h = loadH(); h.unshift({d:new Date().toLocaleString("pt-BR"),n:o.nome||"Sem nome",o:o,t:t});
+    localStorage.setItem(KEY, JSON.stringify(h.slice(0,15)));
+  }catch(e){}
+  drawH();
+}
+function drawH(){
+  var h = loadH(); $("hc").hidden = !h.length;
+  $("hist").innerHTML = "";
+  h.forEach(function(x){
+    var b = document.createElement("button");
+    b.textContent = x.n + " · " + x.d;
+    b.onclick = function(){
+      F.forEach(function(k){ if(x.o[k] !== undefined) $(k).value = x.o[k]; });
+      show(x.t); $("res").scrollIntoView({behavior:"smooth"});
+    };
+    $("hist").appendChild(b);
+  });
+}
+
+$("go").onclick = async function(){
+  var o = brief(), msg = $("msg"); msg.className = "mut"; msg.textContent = "";
+  if(!o.vende || !o.cliente){ msg.className = "err"; msg.textContent = "Preencha ao menos “O que vende” e “Cliente ideal”."; return; }
+  var sample = await claude.use("sample");
+  if(!sample){ msg.className = "err"; msg.textContent = "A geração com IA não está disponível nesta visualização. Abra o link logado no claude.ai."; return; }
+  var btn = $("go"); btn.disabled = true; msg.textContent = "Gerando proposta…";
+  try{
+    var r = await sample(prompt(o), {cache:false, modelTier:"default", onText:function(x){ show(x.text); }});
+    show(r.text); saveH(o, r.text); msg.textContent = "Pronto. Revise os trechos [INSERIR PROVA] antes de usar.";
+  }catch(e){
+    msg.className = "err";
+    msg.textContent = e && e.code === "rate_limited" ? "Muitas chamadas seguidas. Aguarde um pouco." :
+      e && e.code === "not_granted" ? "Permissão negada para usar a IA." : "Não foi possível gerar. Tente novamente.";
+  }
+  btn.disabled = false;
+};
+$("clr").onclick = function(){ F.forEach(function(k){ var e=$(k); if(e.tagName!=="SELECT") e.value=""; }); };
+$("cp").onclick = function(){
+  try{ navigator.clipboard.writeText(cur).then(function(){ $("msg").textContent = "Copiado."; }); }
+  catch(e){ $("msg").textContent = "Não foi possível copiar. Selecione o texto manualmente."; }
+};
+$("dl").onclick = async function(){
+  var d = await claude.use("downloads");
+  if(!d){ $("msg").textContent = "Download indisponível aqui. Use “Copiar”."; return; }
+  try{ await d.save({filename:"proposta-de-valor.md", data:cur}); }catch(e){}
+};
+drawH();
+</script>
+</body>
+</html>
